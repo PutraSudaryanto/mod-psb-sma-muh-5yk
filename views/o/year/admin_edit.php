@@ -5,7 +5,7 @@
  * @var $model PsbYears
  * version: 0.0.1
  *
- * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
+ * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @copyright Copyright (c) 2014 Ommu Platform (ommu.co)
  * @link https://github.com/Ommu/Ommu-PSB
  * @contect (+62)856-299-4114
@@ -101,7 +101,7 @@
 
 <div class="contentmenu clearfix">
 <ul class="left clearfix">
-	<li><a href="<?php echo Yii::app()->controller->createUrl('o/batch/add',array('id'=>$model->year_id,'type'=>'year'));?>" title="Tambah Gelombang"><span class="icons">C</span>Tambah Gelombang</a></li>
+	<li><a href="<?php echo Yii::app()->controller->createUrl('o/batch/add',array('id'=>$model->year_id,'type'=>'year'));?>" title="<?php echo Yii::t('phrase', 'Tambah Gelombang');?>"><span class="icons">C</span><?php echo Yii::t('phrase', 'Tambah Gelombang');?></a></li>
 </ul>
 </div>
 

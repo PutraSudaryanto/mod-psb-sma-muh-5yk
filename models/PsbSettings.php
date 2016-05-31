@@ -1,10 +1,11 @@
 <?php
 /**
- * PsbYearCourse
+ * PsbSettings
  * version: 0.0.1
  *
  * @author Putra Sudaryanto <putra@sudaryanto.id>
- * @copyright Copyright (c) 2014 Ommu Platform (ommu.co)
+ * @copyright Copyright (c) 2016 Ommu Platform (ommu.co)
+ * @created date 27 April 2016, 12:00 WIB
  * @link https://github.com/Ommu/Ommu-PSB
  * @contact (+62)856-299-4114
  *
@@ -19,34 +20,32 @@
  *
  * --------------------------------------------------------------------------------------
  *
- * This is the model class for table "ommu_psb_year_course".
+ * This is the model class for table "ommu_psb_settings".
  *
- * The followings are the available columns in table 'ommu_psb_year_course':
- * @property string $id
- * @property string $year_id
- * @property string $course_id
- * @property string $creation_date
- * @property string $creation_id
- *
- * The followings are the available model relations:
- * @property OmmuPsbYears $year
- * @property OmmuPsbCourses $course
+ * The followings are the available columns in table 'ommu_psb_settings':
+ * @property integer $id
+ * @property string $license
+ * @property integer $permission
+ * @property string $meta_keyword
+ * @property string $meta_description
+ * @property integer $form_online
+ * @property integer $field_religion
+ * @property integer $field_wali
+ * @property string $modified_date
+ * @property string $modified_id
  */
-class PsbYearCourse extends CActiveRecord
+class PsbSettings extends CActiveRecord
 {
 	public $defaultColumns = array();
-	public $body;
 	
 	// Variable Search
-	public $year_search;
-	public $course_search;
-	public $creation_search;
+	public $modified_search;
 
 	/**
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!
 	 * @param string $className active record class name.
-	 * @return PsbYearCourse the static model class
+	 * @return PsbSettings the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
@@ -58,7 +57,7 @@ class PsbYearCourse extends CActiveRecord
 	 */
 	public function tableName()
 	{
-		return 'ommu_psb_year_course';
+		return 'ommu_psb_settings';
 	}
 
 	/**
@@ -69,14 +68,14 @@ class PsbYearCourse extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('year_id, course_id', 'required'),
-			array('year_id, course_id, creation_id', 'length', 'max'=>11),
-			array('
-				body', 'safe'),
+			array('id, license, permission, meta_keyword, meta_description, form_online, field_religion, field_wali, modified_date, modified_id', 'required'),
+			array('id, permission, form_online, field_religion, field_wali', 'numerical', 'integerOnly'=>true),
+			array('license', 'length', 'max'=>32),
+			array('modified_id', 'length', 'max'=>11),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, year_id, course_id, creation_date, creation_id,
-				year_search, course_search, creation_search', 'safe', 'on'=>'search'),
+			array('id, license, permission, meta_keyword, meta_description, form_online, field_religion, field_wali, modified_date, modified_id,
+				modified_search', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -88,9 +87,7 @@ class PsbYearCourse extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'year_relation' => array(self::BELONGS_TO, 'PsbYears', 'year_id'),
-			'course' => array(self::BELONGS_TO, 'PsbCourses', 'course_id'),
-			'creation_relation' => array(self::BELONGS_TO, 'Users', 'creation_id'),
+			'modified' => array(self::BELONGS_TO, 'Users', 'modified_id'),
 		);
 	}
 
@@ -101,15 +98,30 @@ class PsbYearCourse extends CActiveRecord
 	{
 		return array(
 			'id' => Yii::t('attribute', 'ID'),
-			'year_id' => Yii::t('attribute', 'Year'),
-			'course_id' => Yii::t('attribute', 'Course'),
-			'creation_date' => Yii::t('attribute', 'Creation Date'),
-			'creation_id' => Yii::t('attribute', 'Creation'),
-			'body' => Yii::t('attribute', 'Course Name'),
-			'year_search' => Yii::t('attribute', 'Year'),
-			'course_search' => Yii::t('attribute', 'Course'),
-			'creation_search' => Yii::t('attribute', 'Creation'),
+			'license' => Yii::t('attribute', 'License'),
+			'permission' => Yii::t('attribute', 'Permission'),
+			'meta_keyword' => Yii::t('attribute', 'Meta Keyword'),
+			'meta_description' => Yii::t('attribute', 'Meta Description'),
+			'form_online' => Yii::t('attribute', 'Form Online'),
+			'field_religion' => Yii::t('attribute', 'Field Religion'),
+			'field_wali' => Yii::t('attribute', 'Field Wali'),
+			'modified_date' => Yii::t('attribute', 'Modified Date'),
+			'modified_id' => Yii::t('attribute', 'Modified'),
+			'modified_search' => Yii::t('attribute', 'Modified'),
 		);
+		/*
+			'ID' => 'ID',
+			'License' => 'License',
+			'Permission' => 'Permission',
+			'Meta Keyword' => 'Meta Keyword',
+			'Meta Description' => 'Meta Description',
+			'Form Online' => 'Form Online',
+			'Field Religion' => 'Field Religion',
+			'Field Wali' => 'Field Wali',
+			'Modified Date' => 'Modified Date',
+			'Modified' => 'Modified',
+		
+		*/
 	}
 
 	/**
@@ -130,42 +142,33 @@ class PsbYearCourse extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('t.id',$this->id,true);
-		if(isset($_GET['year'])) {
-			$criteria->compare('t.year_id',$_GET['year']);
-		} else {
-			$criteria->compare('t.year_id',$this->year_id);
-		}
-		if(isset($_GET['course'])) {
-			$criteria->compare('t.course_id',$_GET['course']);
-		} else {
-			$criteria->compare('t.course_id',$this->course_id);
-		}
-		if($this->creation_date != null && !in_array($this->creation_date, array('0000-00-00 00:00:00', '0000-00-00')))
-			$criteria->compare('date(t.creation_date)',date('Y-m-d', strtotime($this->creation_date)));
-		$criteria->compare('t.creation_id',$this->creation_id,true);
+		$criteria->compare('t.id',$this->id);
+		$criteria->compare('t.license',strtolower($this->license),true);
+		$criteria->compare('t.permission',$this->permission);
+		$criteria->compare('t.meta_keyword',strtolower($this->meta_keyword),true);
+		$criteria->compare('t.meta_description',strtolower($this->meta_description),true);
+		$criteria->compare('t.form_online',$this->form_online);
+		$criteria->compare('t.field_religion',$this->field_religion);
+		$criteria->compare('t.field_wali',$this->field_wali);
+		if($this->modified_date != null && !in_array($this->modified_date, array('0000-00-00 00:00:00', '0000-00-00')))
+			$criteria->compare('date(t.modified_date)',date('Y-m-d', strtotime($this->modified_date)));
+		if(isset($_GET['modified']))
+			$criteria->compare('t.modified_id',$_GET['modified']);
+		else
+			$criteria->compare('t.modified_id',$this->modified_id);
 		
 		// Custom Search
 		$criteria->with = array(
-			'year_relation' => array(
-				'alias'=>'year_relation',
-				'select'=>'years'
-			),
-			'course' => array(
-				'alias'=>'course',
-				'select'=>'course_name'
-			),
-			'creation_relation' => array(
-				'alias'=>'creation_relation',
-				'select'=>'displayname'
+			'modified_relation' => array(
+				'alias'=>'modified_relation',
+				'select'=>'displayname',
 			),
 		);
-		$criteria->compare('year_relation.years',strtolower($this->year_search), true);
-		$criteria->compare('course.course_name',strtolower($this->course_search), true);
-		$criteria->compare('creation_relation.displayname',strtolower($this->creation_search), true);
+		$criteria->compare('modified_relation.displayname',strtolower($this->modified_search), true);
 
-		if(!isset($_GET['PsbYearCourse_sort']))
-			$criteria->order = 'id DESC';
+
+		if(!isset($_GET['PsbSettings_sort']))
+			$criteria->order = 't.id DESC';
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
@@ -174,6 +177,7 @@ class PsbYearCourse extends CActiveRecord
 			),
 		));
 	}
+
 
 	/**
 	 * Get column for CGrid View
@@ -193,10 +197,15 @@ class PsbYearCourse extends CActiveRecord
 			}
 		} else {
 			//$this->defaultColumns[] = 'id';
-			$this->defaultColumns[] = 'year_id';
-			$this->defaultColumns[] = 'course_id';
-			$this->defaultColumns[] = 'creation_date';
-			$this->defaultColumns[] = 'creation_id';
+			$this->defaultColumns[] = 'license';
+			$this->defaultColumns[] = 'permission';
+			$this->defaultColumns[] = 'meta_keyword';
+			$this->defaultColumns[] = 'meta_description';
+			$this->defaultColumns[] = 'form_online';
+			$this->defaultColumns[] = 'field_religion';
+			$this->defaultColumns[] = 'field_wali';
+			$this->defaultColumns[] = 'modified_date';
+			$this->defaultColumns[] = 'modified_id';
 		}
 
 		return $this->defaultColumns;
@@ -211,32 +220,27 @@ class PsbYearCourse extends CActiveRecord
 				'header' => 'No',
 				'value' => '$this->grid->dataProvider->pagination->currentPage*$this->grid->dataProvider->pagination->pageSize + $row+1'
 			);
+			$this->defaultColumns[] = 'license';
+			$this->defaultColumns[] = 'permission';
+			$this->defaultColumns[] = 'meta_keyword';
+			$this->defaultColumns[] = 'meta_description';
+			$this->defaultColumns[] = 'form_online';
+			$this->defaultColumns[] = 'field_religion';
+			$this->defaultColumns[] = 'field_wali';
 			$this->defaultColumns[] = array(
-				'name' => 'year_search',
-				'value' => '$data->year_relation->years',
-			);
-			$this->defaultColumns[] = array(
-				'name' => 'course_search',
-				'value' => '$data->course->course_name',
-			);
-			$this->defaultColumns[] = array(
-				'name' => 'creation_search',
-				'value' => '$data->creation_relation->displayname',
-			);
-			$this->defaultColumns[] = array(
-				'name' => 'creation_date',
-				'value' => 'Utility::dateFormat($data->creation_date)',
+				'name' => 'modified_date',
+				'value' => 'Utility::dateFormat($data->modified_date)',
 				'htmlOptions' => array(
 					'class' => 'center',
 				),
 				'filter' => Yii::app()->controller->widget('zii.widgets.jui.CJuiDatePicker', array(
 					'model'=>$this,
-					'attribute'=>'creation_date',
+					'attribute'=>'modified_date',
 					'language' => 'ja',
 					'i18nScriptFile' => 'jquery.ui.datepicker-en.js',
 					//'mode'=>'datetime',
 					'htmlOptions' => array(
-						'id' => 'creation_date_filter',
+						'id' => 'modified_date_filter',
 					),
 					'options'=>array(
 						'showOn' => 'focus',
@@ -248,6 +252,10 @@ class PsbYearCourse extends CActiveRecord
 						'showButtonPanel' => true,
 					),
 				), true),
+			);
+			$this->defaultColumns[] = array(
+				'name' => 'modified_search',
+				'value' => '$data->modified_relation->displayname',
 			);
 		}
 		parent::afterConstruct();
@@ -274,41 +282,9 @@ class PsbYearCourse extends CActiveRecord
 	 * before validate attributes
 	 */
 	protected function beforeValidate() {
-		if(parent::beforeValidate()) {
-			if($this->isNewRecord) {
-				$this->creation_id = Yii::app()->user->id;	
-			}
+		if(parent::beforeValidate()) {			
+			$this->modified_id = Yii::app()->user->id;
 		}
 		return true;
 	}
-	
-	/**
-	 * before save attributes
-	 */
-	protected function beforeSave() {
-		if(parent::beforeSave()) {
-			if($this->isNewRecord) {
-				if($this->course_id == 0) {
-					$course = PsbCourses::model()->find(array(
-						'select' => 'course_id, course_name',
-						'condition' => 'course_name = :course_name',
-						'params' => array(
-							':course_name' => strtolower($this->body),
-						),
-					));
-					if($course != null) {
-						$this->course_id = $course->course_id;
-					} else {
-						$data = new PsbCourses;
-						$data->course_name = $this->body;
-						if($data->save()) {
-							$this->course_id = $data->course_id;
-						}
-					}					
-				}
-			}
-		}
-		return true;
-	}
-
 }
