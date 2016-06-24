@@ -137,7 +137,7 @@ class AdminController extends Controller
 			'model'=>$model,
 			'columns' => $columns,
 		));
-	}	
+	}
 
 	/**
 	 * Manages all models.
@@ -152,9 +152,13 @@ class AdminController extends Controller
 			$criteria->compare('t.batch_id',$id);
 		else {
 			$criteria->with = array(
-				'year' => array(
+				'batch_relation' => array(
+					'alias'=>'batch_relation',
+					'select'=>'batch_id, year_id, batch_name'
+				),
+				'batch_relation.year' => array(
 					'alias'=>'year',
-					'select'=>'year_id'
+					'select'=>'year_id, years'
 				),
 			);
 			$criteria->compare('year.year_id',$id);
@@ -165,20 +169,15 @@ class AdminController extends Controller
 		if($model != null) {
 			$data[] = array(
 				'NO',
+				'nisn',
 				'register_name',
 				'birth_city',
 				'birth_date',
 				'gender',
 				'address',
-				'address_yogya',
-				'parent_name',
-				'parent_work',
-				'parent_address',
+				'register_phone',
 				'parent_phone',
-				'wali_name',
-				'wali_work',
-				'wali_address',
-				'wali_phone',
+				'register_request',
 				'school_id',
 				'school_status',
 				'school_un_average',
@@ -189,20 +188,15 @@ class AdminController extends Controller
 				$i++;
 				$register = array(
 					$i,
+					$val->nisn,
 					$val->register_name,
 					$val->birth_city != 0 ? $val->city_relation->city : '',
 					!in_array($val->birth_date, array('0000-00-00','1970-01-01')) ? Utility::dateFormat($val->birth_date) : '',
 					$val->gender == 'male' ? Yii::t('phrase', 'Laki-laki') : Yii::t('phrase', 'Perempuan'),
 					$val->address,
-					$val->address_yogya,
-					$val->parent_name,
-					$val->parent_work,
-					$val->parent_address,
+					$val->register_phone,
 					$val->parent_phone,
-					$val->wali_name,
-					$val->wali_work,
-					$val->wali_address,
-					$val->wali_phone,
+					$val->register_request == 'ipa' ? Yii::t('phrase', 'IPA') : Yii::t('phrase', 'IPS'),
 					$val->school_id != 0 ? $val->school->school_name : '',
 					$val->school->school_status != 1 ? Yii::t('phrase', 'Negeri') : Yii::t('phrase', 'Swasta'),
 					$val->school_un_average,
@@ -217,10 +211,10 @@ class AdminController extends Controller
 			$xls->generateXML(time().'_'.$title.'_Rekap');
 			
 		} else {
-            echo 'data kosong';			
+			echo 'data kosong';
 		}
 		
-		ob_end_flush();		
+		ob_end_flush();
 	}
 	
 	/**
