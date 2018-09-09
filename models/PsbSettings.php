@@ -4,7 +4,7 @@
  *
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @contact (+62)856-299-4114
- * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
+ * @copyright Copyright (c) 2016 Ommu Platform (www.ommu.co)
  * @created date 27 April 2016, 12:00 WIB
  * @link https://github.com/ommu/PSB
  *
@@ -128,32 +128,32 @@ class PsbSettings extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('t.id',$this->id);
-		$criteria->compare('t.license',strtolower($this->license),true);
-		$criteria->compare('t.permission',$this->permission);
-		$criteria->compare('t.meta_keyword',strtolower($this->meta_keyword),true);
-		$criteria->compare('t.meta_description',strtolower($this->meta_description),true);
-		$criteria->compare('t.form_online',$this->form_online);
-		$criteria->compare('t.field_religion',$this->field_religion);
-		$criteria->compare('t.field_wali',$this->field_wali);
-		if($this->modified_date != null && !in_array($this->modified_date, array('0000-00-00 00:00:00', '0000-00-00')))
-			$criteria->compare('date(t.modified_date)',date('Y-m-d', strtotime($this->modified_date)));
-		if(isset($_GET['modified']))
-			$criteria->compare('t.modified_id',$_GET['modified']);
+		$criteria->compare('t.id', $this->id);
+		$criteria->compare('t.license', strtolower($this->license), true);
+		$criteria->compare('t.permission', $this->permission);
+		$criteria->compare('t.meta_keyword', strtolower($this->meta_keyword), true);
+		$criteria->compare('t.meta_description', strtolower($this->meta_description), true);
+		$criteria->compare('t.form_online', $this->form_online);
+		$criteria->compare('t.field_religion', $this->field_religion);
+		$criteria->compare('t.field_wali', $this->field_wali);
+		if($this->modified_date != null && !in_array($this->modified_date, array('0000-00-00 00:00:00','1970-01-01 00:00:00','0002-12-02 07:07:12','-0001-11-30 00:00:00')))
+			$criteria->compare('date(t.modified_date)', date('Y-m-d', strtotime($this->modified_date)));
+		if(Yii::app()->getRequest()->getParam('modified'))
+			$criteria->compare('t.modified_id', Yii::app()->getRequest()->getParam('modified'));
 		else
-			$criteria->compare('t.modified_id',$this->modified_id);
+			$criteria->compare('t.modified_id', $this->modified_id);
 		
 		// Custom Search
 		$criteria->with = array(
 			'modified' => array(
-				'alias'=>'modified',
-				'select'=>'displayname',
+				'alias' => 'modified',
+				'select' => 'displayname',
 			),
 		);
-		$criteria->compare('modified.displayname',strtolower($this->modified_search), true);
+		$criteria->compare('modified.displayname', strtolower($this->modified_search), true);
 
 
-		if(!isset($_GET['PsbSettings_sort']))
+		if(!Yii::app()->getRequest()->getParam('PsbSettings_sort'))
 			$criteria->order = 't.id DESC';
 
 		return new CActiveDataProvider($this, array(
@@ -215,29 +215,11 @@ class PsbSettings extends CActiveRecord
 			$this->defaultColumns[] = 'field_wali';
 			$this->defaultColumns[] = array(
 				'name' => 'modified_date',
-				'value' => 'Utility::dateFormat($data->modified_date)',
+				'value' => 'Yii::app()->dateFormatter->formatDateTime($data->modified_date, \'medium\', false)',
 				'htmlOptions' => array(
 					'class' => 'center',
 				),
-				'filter' => Yii::app()->controller->widget('application.libraries.core.components.system.CJuiDatePicker', array(
-					'model'=>$this,
-					'attribute'=>'modified_date',
-					'language' => 'en',
-					'i18nScriptFile' => 'jquery-ui-i18n.min.js',
-					//'mode'=>'datetime',
-					'htmlOptions' => array(
-						'id' => 'modified_date_filter',
-					),
-					'options'=>array(
-						'showOn' => 'focus',
-						'dateFormat' => 'dd-mm-yy',
-						'showOtherMonths' => true,
-						'selectOtherMonths' => true,
-						'changeMonth' => true,
-						'changeYear' => true,
-						'showButtonPanel' => true,
-					),
-				), true),
+				'filter' => $this->filterDatepicker($this, 'modified_date'),
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'modified_search',
@@ -253,7 +235,7 @@ class PsbSettings extends CActiveRecord
 	public static function getInfo($id, $column=null)
 	{
 		if($column != null) {
-			$model = self::model()->findByPk($id,array(
+			$model = self::model()->findByPk($id, array(
 				'select' => $column,
 			));
  			if(count(explode(',', $column)) == 1)

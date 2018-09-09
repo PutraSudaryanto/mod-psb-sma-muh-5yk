@@ -4,7 +4,7 @@
  *
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @contact (+62)856-299-4114
- * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
+ * @copyright Copyright (c) 2016 Ommu Platform (www.ommu.co)
  * @link https://github.com/ommu/PSB
  *
  * This is the template for generating the model class of a specified table.
@@ -139,40 +139,40 @@ class PsbYears extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('t.year_id',$this->year_id,true);
-		if(isset($_GET['type']) && $_GET['type'] == 'publish')
-			$criteria->compare('t.publish',1);
-		elseif(isset($_GET['type']) && $_GET['type'] == 'unpublish')
-			$criteria->compare('t.publish',0);
-		elseif(isset($_GET['type']) && $_GET['type'] == 'trash')
-			$criteria->compare('t.publish',2);
+		$criteria->compare('t.year_id', $this->year_id,true);
+		if(Yii::app()->getRequest()->getParam('type') == 'publish')
+			$criteria->compare('t.publish', 1);
+		elseif(Yii::app()->getRequest()->getParam('type') == 'unpublish')
+			$criteria->compare('t.publish', 0);
+		elseif(Yii::app()->getRequest()->getParam('type') == 'trash')
+			$criteria->compare('t.publish', 2);
 		else {
-			$criteria->addInCondition('t.publish',array(0,1));
-			$criteria->compare('t.publish',$this->publish);
+			$criteria->addInCondition('t.publish', array(0,1));
+			$criteria->compare('t.publish', $this->publish);
 		}
-		$criteria->compare('t.years',$this->years,true);
-		if($this->creation_date != null && !in_array($this->creation_date, array('0000-00-00 00:00:00', '0000-00-00')))
-			$criteria->compare('date(t.creation_date)',date('Y-m-d', strtotime($this->creation_date)));
-		$criteria->compare('t.creation_id',$this->creation_id,true);
-		if($this->modified_date != null && !in_array($this->modified_date, array('0000-00-00 00:00:00', '0000-00-00')))
-			$criteria->compare('date(t.modified_date)',date('Y-m-d', strtotime($this->modified_date)));
-		$criteria->compare('t.modified_id',$this->creation_id,true);
+		$criteria->compare('t.years', $this->years,true);
+		if($this->creation_date != null && !in_array($this->creation_date, array('0000-00-00 00:00:00','1970-01-01 00:00:00','0002-12-02 07:07:12','-0001-11-30 00:00:00')))
+			$criteria->compare('date(t.creation_date)', date('Y-m-d', strtotime($this->creation_date)));
+		$criteria->compare('t.creation_id', $this->creation_id,true);
+		if($this->modified_date != null && !in_array($this->modified_date, array('0000-00-00 00:00:00','1970-01-01 00:00:00','0002-12-02 07:07:12','-0001-11-30 00:00:00')))
+			$criteria->compare('date(t.modified_date)', date('Y-m-d', strtotime($this->modified_date)));
+		$criteria->compare('t.modified_id', $this->creation_id,true);
 		
 		// Custom Search
 		$criteria->with = array(
 			'creation' => array(
-				'alias'=>'creation',
-				'select'=>'displayname'
+				'alias' => 'creation',
+				'select' => 'displayname'
 			),
 			'modified' => array(
-				'alias'=>'modified',
-				'select'=>'displayname'
+				'alias' => 'modified',
+				'select' => 'displayname'
 			),
 		);
-		$criteria->compare('creation.displayname',strtolower($this->creation_search), true);
-		$criteria->compare('modified.displayname',strtolower($this->modified_search), true);
+		$criteria->compare('creation.displayname', strtolower($this->creation_search), true);
+		$criteria->compare('modified.displayname', strtolower($this->modified_search), true);
 
-		if(!isset($_GET['PsbYears_sort']))
+		if(!Yii::app()->getRequest()->getParam('PsbYears_sort'))
 			$criteria->order = 'year_id DESC';
 
 		return new CActiveDataProvider($this, array(
@@ -225,7 +225,7 @@ class PsbYears extends CActiveRecord
 			$this->defaultColumns[] = 'years';
 			$this->defaultColumns[] = array(
 				'header' => 'batchs',
-				'value' => 'CHtml::link($data->view->batchs, Yii::app()->controller->createUrl("o/batch/manage",array("year"=>$data->year_id)))',
+				'value' => 'CHtml::link($data->view->batchs, Yii::app()->controller->createUrl("o/batch/manage", array("year"=>$data->year_id)))',
 				'htmlOptions' => array(
 					'class' => 'center',
 				),
@@ -233,7 +233,7 @@ class PsbYears extends CActiveRecord
 			);
 			$this->defaultColumns[] = array(
 				'header' => 'courses',
-				'value' => 'CHtml::link($data->view->courses, Yii::app()->controller->createUrl("o/yearcourse/manage",array("year"=>$data->year_id)))',
+				'value' => 'CHtml::link($data->view->courses, Yii::app()->controller->createUrl("o/yearcourse/manage", array("year"=>$data->year_id)))',
 				'htmlOptions' => array(
 					'class' => 'center',
 				),
@@ -241,7 +241,7 @@ class PsbYears extends CActiveRecord
 			);
 			$this->defaultColumns[] = array(
 				'header' => 'registers',
-				'value' => 'CHtml::link($data->view->registers != null ? $data->view->registers : "0", Yii::app()->controller->createUrl("o/admin/manage",array("year"=>$data->year_id)))',
+				'value' => 'CHtml::link($data->view->registers != null ? $data->view->registers : "0", Yii::app()->controller->createUrl("o/admin/manage", array("year"=>$data->year_id)))',
 				'htmlOptions' => array(
 					'class' => 'center',
 				),
@@ -253,49 +253,28 @@ class PsbYears extends CActiveRecord
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'creation_date',
-				'value' => 'Utility::dateFormat($data->creation_date)',
+				'value' => 'Yii::app()->dateFormatter->formatDateTime($data->creation_date, \'medium\', false)',
 				'htmlOptions' => array(
 					'class' => 'center',
 				),
-				'filter' => Yii::app()->controller->widget('application.libraries.core.components.system.CJuiDatePicker', array(
-					'model'=>$this,
-					'attribute'=>'creation_date',
-					'language' => 'en',
-					'i18nScriptFile' => 'jquery-ui-i18n.min.js',
-					//'mode'=>'datetime',
-					'htmlOptions' => array(
-						'id' => 'creation_date_filter',
-					),
-					'options'=>array(
-						'showOn' => 'focus',
-						'dateFormat' => 'dd-mm-yy',
-						'showOtherMonths' => true,
-						'selectOtherMonths' => true,
-						'changeMonth' => true,
-						'changeYear' => true,
-						'showButtonPanel' => true,
-					),
-				), true),
+				'filter' => $this->filterDatepicker($this, 'creation_date'),
 			);
 			$this->defaultColumns[] = array(
 				'header' => Yii::t('phrase', 'Recap'),
-				'value' => 'CHtml::link(Yii::t("phrase", "Recap"), Yii::app()->controller->createUrl("o/admin/recap",array("id"=>$data->year_id,"type"=>"year")))',
+				'value' => 'CHtml::link(Yii::t("phrase", "Recap"), Yii::app()->controller->createUrl("o/admin/recap", array("id"=>$data->year_id,"type"=>"year")))',
 				'htmlOptions' => array(
 					'class' => 'center',
 				),
 				'type' => 'raw',
 			);
-			if(!isset($_GET['type'])) {
+			if(!Yii::app()->getRequest()->getParam('type')) {
 				$this->defaultColumns[] = array(
 					'name' => 'publish',
-					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("publish",array("id"=>$data->year_id)), $data->publish, 1)',
+					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("publish", array("id"=>$data->year_id)), $data->publish, 1)',
 					'htmlOptions' => array(
 						'class' => 'center',
 					),
-					'filter'=>array(
-						1=>Yii::t('phrase', 'Yes'),
-						0=>Yii::t('phrase', 'No'),
-					),
+					'filter' => $this->filterYesNo(),
 					'type' => 'raw',
 				);
 			}
@@ -309,7 +288,7 @@ class PsbYears extends CActiveRecord
 	public static function getInfo($id, $column=null)
 	{
 		if($column != null) {
-			$model = self::model()->findByPk($id,array(
+			$model = self::model()->findByPk($id, array(
 				'select' => $column,
 			));
  			if(count(explode(',', $column)) == 1)
@@ -326,14 +305,14 @@ class PsbYears extends CActiveRecord
 	/**
 	 * Get Years
 	 */
-	public static function getYear($publish=null, $type=null) 
+	public static function getYear($publish=null, $array=true) 
 	{		
 		$criteria=new CDbCriteria;
 		if($publish != null)
 			$criteria->compare('publish',$publish);
 		$model = self::model()->findAll($criteria);
 
-		if($type == null) {
+		if($array == true) {
 			$items = array();
 			if($model != null) {
 				foreach($model as $key => $val)

@@ -6,7 +6,7 @@
  *
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @contact (+62)856-299-4114
- * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
+ * @copyright Copyright (c) 2016 Ommu Platform (www.ommu.co)
  * @created date 28 April 2016, 10:52 WIB
  * @link https://github.com/ommu/PSB
  *
@@ -18,7 +18,7 @@
 	);
 ?>
 
-<?php $this->widget('application.libraries.core.components.system.FDetailView', array(
+<?php $this->widget('zii.widgets.CDetailView', array(
 	'data'=>$model,
 	'attributes'=>array(
 		array(
@@ -58,7 +58,7 @@
 		),
 		array(
 			'name'=>'birth_date',
-			'value'=>!in_array($model->birth_date, array('0000-00-00','1970-01-01','0002-12-02','-0001-11-30')) ? Utility::dateFormat($model->birth_date) : '-',
+			'value'=>!in_array($model->birth_date, array('0000-00-00','1970-01-01','0002-12-02','-0001-11-30')) ? $this->dateFormat($model->birth_date, 'full', false) : '-',
 		),
 		array(
 			'name'=>'gender',
@@ -105,7 +105,7 @@
 		),
 		array(
 			'name'=>'creation_date',
-			'value'=>!in_array($model->creation_date, array('0000-00-00 00:00:00','1970-01-01 00:00:00','0002-12-02 07:07:12','-0001-11-30 00:00:00')) ? Utility::dateFormat($model->creation_date, true) : '-',
+			'value'=>!in_array($model->creation_date, array('0000-00-00 00:00:00','1970-01-01 00:00:00','0002-12-02 07:07:12','-0001-11-30 00:00:00')) ? $this->dateFormat($model->creation_date) : '-',
 		),
 		array(
 			'name'=>'creation_id',

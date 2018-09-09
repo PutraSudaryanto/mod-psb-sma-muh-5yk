@@ -11,7 +11,7 @@
  *	Manage
  *	Add
  *	Edit
- *	RunAction
+ *	Runaction
  *	Delete
  *	Publish
  *
@@ -20,7 +20,7 @@
  *
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @contact (+62)856-299-4114
- * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
+ * @copyright Copyright (c) 2016 Ommu Platform (www.ommu.co)
  * @link https://github.com/ommu/PSB
  *
  *----------------------------------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ class YearController extends Controller
 	{
 		if(!Yii::app()->user->isGuest) {
 			if(in_array(Yii::app()->user->level, array(1,2))) {
-				$arrThemes = Utility::getCurrentTemplate('admin');
+				$arrThemes = $this->currentTemplate('admin');
 				Yii::app()->theme = $arrThemes['folder'];
 				$this->layout = $arrThemes['layout'];
 			} else
@@ -109,25 +109,17 @@ class YearController extends Controller
 	public function actionManage() 
 	{
 		$model=new PsbYears('search');
-		$model->unsetAttributes();  // clear any default values
+		$model->unsetAttributes();	// clear any default values
 		if(isset($_GET['PsbYears'])) {
 			$model->attributes=$_GET['PsbYears'];
 		}
 
-		$columnTemp = array();
-		if(isset($_GET['GridColumn'])) {
-			foreach($_GET['GridColumn'] as $key => $val) {
-				if($_GET['GridColumn'][$key] == 1) {
-					$columnTemp[] = $key;
-				}
-			}
-		}
-		$columns = $model->getGridColumn($columnTemp);
+		$columns = $model->getGridColumn($this->gridColumnTemp());
 
 		$this->pageTitle = Yii::t('phrase', 'Psb Years Manage');
 		$this->pageDescription = '';
 		$this->pageMeta = '';
-		$this->render('admin_manage',array(
+		$this->render('admin_manage', array(
 			'model'=>$model,
 			'columns' => $columns,
 		));
@@ -152,7 +144,7 @@ class YearController extends Controller
 				echo $jsonError;
 
 			} else {
-				if(isset($_GET['enablesave']) && $_GET['enablesave'] == 1) {
+				if(Yii::app()->getRequest()->getParam('enablesave') == 1) {
 					if($model->save()) {
 						echo CJSON::encode(array(
 							'type' => 5,
@@ -175,7 +167,7 @@ class YearController extends Controller
 			$this->pageTitle = Yii::t('phrase', 'Create Psb Years');
 			$this->pageDescription = '';
 			$this->pageMeta = '';
-			$this->render('admin_add',array(
+			$this->render('admin_add', array(
 				'model'=>$model,
 			));			
 		}
@@ -197,20 +189,12 @@ class YearController extends Controller
 		));
 		
 		$batch=new PsbYearBatch('search');
-		$batch->unsetAttributes();  // clear any default values
+		$batch->unsetAttributes();	// clear any default values
 		if(isset($_GET['PsbYearBatch'])) {
 			$batch->attributes=$_GET['PsbYearBatch'];
 		}
 
-		$columnTemp = array();
-		if(isset($_GET['GridColumn'])) {
-			foreach($_GET['GridColumn'] as $key => $val) {
-				if($_GET['GridColumn'][$key] == 1) {
-					$columnTemp[] = $key;
-				}
-			}
-		}
-		$columns = $batch->getGridColumn($columnTemp);
+		$columns = $batch->getGridColumn($this->gridColumnTemp());
 
 		// Uncomment the following line if AJAX validation is needed
 		$this->performAjaxValidation($model);
@@ -223,7 +207,7 @@ class YearController extends Controller
 				echo $jsonError;
 
 			} else {
-				if(isset($_GET['enablesave']) && $_GET['enablesave'] == 1) {
+				if(Yii::app()->getRequest()->getParam('enablesave') == 1) {
 					if($model->save()) {
 						echo CJSON::encode(array(
 							'type' => 5,
@@ -242,7 +226,7 @@ class YearController extends Controller
 			$this->pageTitle = Yii::t('phrase', 'Update Psb Years');
 			$this->pageDescription = '';
 			$this->pageMeta = '';
-			$this->render('admin_edit',array(
+			$this->render('admin_edit', array(
 				'model'=>$model,
 				'course'=>$course,
 				'batch'=>$batch,
@@ -255,10 +239,10 @@ class YearController extends Controller
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
 	 */
-	public function actionRunAction() {
+	public function actionRunaction() {
 		$id       = $_POST['trash_id'];
 		$criteria = null;
-		$actions  = $_GET['action'];
+		$actions  = Yii::app()->getRequest()->getParam('action');
 
 		if(count($id) > 0) {
 			$criteria = new CDbCriteria;
@@ -282,7 +266,7 @@ class YearController extends Controller
 		}
 
 		// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-		if(!isset($_GET['ajax'])) {
+		if(!Yii::app()->getRequest()->getParam('ajax')) {
 			$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('manage'));
 		}
 	}
@@ -363,7 +347,7 @@ class YearController extends Controller
 			$this->pageTitle = $title;
 			$this->pageDescription = '';
 			$this->pageMeta = '';
-			$this->render('admin_publish',array(
+			$this->render('admin_publish', array(
 				'title'=>$title,
 				'model'=>$model,
 			));

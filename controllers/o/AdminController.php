@@ -13,7 +13,7 @@
  *	Add
  *	Edit
  *	View
- *	RunAction
+ *	Runaction
  *	Delete
  *	Publish
  *
@@ -22,7 +22,7 @@
  *
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @contact (+62)856-299-4114
- * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
+ * @copyright Copyright (c) 2016 Ommu Platform (www.ommu.co)
  * @created date 28 April 2016, 10:52 WIB
  * @link https://github.com/ommu/PSB
 
@@ -46,7 +46,7 @@ class AdminController extends Controller
 	{
 		if(!Yii::app()->user->isGuest) {
 			if(in_array(Yii::app()->user->level, array(1,2))) {
-				$arrThemes = Utility::getCurrentTemplate('admin');
+				$arrThemes = $this->currentTemplate('admin');
 				Yii::app()->theme = $arrThemes['folder'];
 				$this->layout = $arrThemes['layout'];
 			} else
@@ -113,25 +113,17 @@ class AdminController extends Controller
 	public function actionManage() 
 	{
 		$model=new PsbRegisters('search');
-		$model->unsetAttributes();  // clear any default values
+		$model->unsetAttributes();	// clear any default values
 		if(isset($_GET['PsbRegisters'])) {
 			$model->attributes=$_GET['PsbRegisters'];
 		}
 
-		$columnTemp = array();
-		if(isset($_GET['GridColumn'])) {
-			foreach($_GET['GridColumn'] as $key => $val) {
-				if($_GET['GridColumn'][$key] == 1) {
-					$columnTemp[] = $key;
-				}
-			}
-		}
-		$columns = $model->getGridColumn($columnTemp);
+		$columns = $model->getGridColumn($this->gridColumnTemp());
 
 		$this->pageTitle = Yii::t('phrase', 'Psb Registers Manage');
 		$this->pageDescription = '';
 		$this->pageMeta = '';
-		$this->render('admin_manage',array(
+		$this->render('admin_manage', array(
 			'model'=>$model,
 			'columns' => $columns,
 		));
@@ -151,12 +143,12 @@ class AdminController extends Controller
 		else {
 			$criteria->with = array(
 				'batch_relation' => array(
-					'alias'=>'batch_relation',
-					'select'=>'batch_id, year_id, batch_name'
+					'alias' => 'batch_relation',
+					'select' => 'batch_id, year_id, batch_name'
 				),
 				'batch_relation.year' => array(
-					'alias'=>'year',
-					'select'=>'year_id, years'
+					'alias' => 'year',
+					'select' => 'year_id, years'
 				),
 			);
 			$criteria->compare('year.year_id',$id);
@@ -189,7 +181,7 @@ class AdminController extends Controller
 					$val->nisn,
 					$val->register_name,
 					$val->birth_city != 0 ? $val->city_relation->city : '',
-					!in_array($val->birth_date, array('0000-00-00','1970-01-01','0002-12-02','-0001-11-30')) ? Utility::dateFormat($val->birth_date) : '',
+					!in_array($val->birth_date, array('0000-00-00','1970-01-01','0002-12-02','-0001-11-30')) ? $this->dateFormat($val->birth_date, 'long', false) : '',
 					$val->gender == 'male' ? Yii::t('phrase', 'Laki-laki') : Yii::t('phrase', 'Perempuan'),
 					$val->address,
 					$val->register_phone,
@@ -198,7 +190,7 @@ class AdminController extends Controller
 					$val->school_id != 0 ? $val->school->school_name : '',
 					$val->school->school_status != 1 ? Yii::t('phrase', 'Negeri') : Yii::t('phrase', 'Swasta'),
 					$val->school_un_average,
-					!in_array($val->creation_date, array('0000-00-00','1970-01-01','0002-12-02','-0001-11-30')) ? Utility::dateFormat($val->creation_date) : '',
+					!in_array($val->creation_date, array('0000-00-00','1970-01-01','0002-12-02','-0001-11-30')) ? $this->dateFormat($val->creation_date, true) : '',
 				);
 				$data[] = $register;
 			}
@@ -226,11 +218,11 @@ class AdminController extends Controller
 		else {
 			$criteria=new CDbCriteria;
 			$criteria->condition = 'curdate() BETWEEN `batch_start` AND `batch_finish`';
-			$criteria->compare('publish',1);
+			$criteria->compare('publish', 1);
 			$batch = PsbYearBatch::model()->find($criteria);
 		}
 		
-		$setting = PsbSettings::model()->findByPk(1,array(
+		$setting = PsbSettings::model()->findByPk(1, array(
 			'select' => 'form_online',
 		));
 		$model=new PsbRegisters;
@@ -317,7 +309,7 @@ class AdminController extends Controller
 		$this->pageTitle = Yii::t('phrase', 'Create Psb Registers');
 		$this->pageDescription = '';
 		$this->pageMeta = '';
-		$this->render('admin_add',array(
+		$this->render('admin_add', array(
 			'batch'=>$batch,
 			'setting'=>$setting,
 			'model'=>$model,
@@ -333,7 +325,7 @@ class AdminController extends Controller
 	 */
 	public function actionEdit($id) 
 	{
-		$setting = PsbSettings::model()->findByPk(1,array(
+		$setting = PsbSettings::model()->findByPk(1, array(
 			'select' => 'form_online, field_religion, field_wali',
 		));
 		
@@ -412,7 +404,7 @@ class AdminController extends Controller
 		$this->pageTitle = Yii::t('phrase', 'Update Psb Registers');
 		$this->pageDescription = '';
 		$this->pageMeta = '';
-		$this->render('admin_edit',array(
+		$this->render('admin_edit', array(
 			'setting'=>$setting,
 			'model'=>$model,
 			'batch'=>$batch,
@@ -432,7 +424,7 @@ class AdminController extends Controller
 		$this->pageTitle = Yii::t('phrase', 'View Psb Registers');
 		$this->pageDescription = '';
 		$this->pageMeta = $setting->meta_keyword;
-		$this->render('admin_view',array(
+		$this->render('admin_view', array(
 			'model'=>$model,
 		));
 	}	
@@ -441,10 +433,10 @@ class AdminController extends Controller
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
 	 */
-	public function actionRunAction() {
+	public function actionRunaction() {
 		$id       = $_POST['trash_id'];
 		$criteria = null;
-		$actions  = $_GET['action'];
+		$actions  = Yii::app()->getRequest()->getParam('action');
 
 		if(count($id) > 0) {
 			$criteria = new CDbCriteria;
@@ -468,7 +460,7 @@ class AdminController extends Controller
 		}
 
 		// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-		if(!isset($_GET['ajax'])) {
+		if(!Yii::app()->getRequest()->getParam('ajax')) {
 			$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('manage'));
 		}
 	}
@@ -560,7 +552,7 @@ class AdminController extends Controller
 			$this->pageTitle = $title;
 			$this->pageDescription = '';
 			$this->pageMeta = '';
-			$this->render('admin_publish',array(
+			$this->render('admin_publish', array(
 				'title'=>$title,
 				'model'=>$model,
 			));

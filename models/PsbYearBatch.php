@@ -4,7 +4,7 @@
  *
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @contact (+62)856-299-4114
- * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
+ * @copyright Copyright (c) 2016 Ommu Platform (www.ommu.co)
  * @link https://github.com/ommu/PSB
  *
  * This is the template for generating the model class of a specified table.
@@ -142,58 +142,58 @@ class PsbYearBatch extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('t.batch_id',$this->batch_id,true);
-		if(isset($_GET['type']) && $_GET['type'] == 'publish')
-			$criteria->compare('t.publish',1);
-		elseif(isset($_GET['type']) && $_GET['type'] == 'unpublish')
-			$criteria->compare('t.publish',0);
-		elseif(isset($_GET['type']) && $_GET['type'] == 'trash')
-			$criteria->compare('t.publish',2);
+		$criteria->compare('t.batch_id', $this->batch_id,true);
+		if(Yii::app()->getRequest()->getParam('type') == 'publish')
+			$criteria->compare('t.publish', 1);
+		elseif(Yii::app()->getRequest()->getParam('type') == 'unpublish')
+			$criteria->compare('t.publish', 0);
+		elseif(Yii::app()->getRequest()->getParam('type') == 'trash')
+			$criteria->compare('t.publish', 2);
 		else {
-			$criteria->addInCondition('t.publish',array(0,1));
-			$criteria->compare('t.publish',$this->publish);
+			$criteria->addInCondition('t.publish', array(0,1));
+			$criteria->compare('t.publish', $this->publish);
 		}
-		if(isset($_GET['year']))
-			$criteria->compare('t.year_id',$_GET['year']);
+		if(Yii::app()->getRequest()->getParam('year'))
+			$criteria->compare('t.year_id', Yii::app()->getRequest()->getParam('year'));
 		else {
-			if($currentAction == 'o/year/edit' && isset($_GET['id']))
-				$criteria->compare('t.year_id',$_GET['id']);
+			if($currentAction == 'o/year/edit' && Yii::app()->getRequest()->getParam('id'))
+				$criteria->compare('t.year_id', Yii::app()->getRequest()->getParam('id'));
 			else				
-				$criteria->compare('t.year_id',$this->year_id);
+				$criteria->compare('t.year_id', $this->year_id);
 		}
-		$criteria->compare('t.batch_name',$this->batch_name,true);
-		if($this->batch_start != null && !in_array($this->batch_start, array('0000-00-00 00:00:00', '0000-00-00')))
-			$criteria->compare('date(t.batch_start)',date('Y-m-d', strtotime($this->batch_start)));
-		if($this->batch_finish != null && !in_array($this->batch_finish, array('0000-00-00 00:00:00', '0000-00-00')))
-			$criteria->compare('date(t.batch_finish)',date('Y-m-d', strtotime($this->batch_finish)));
-		$criteria->compare('t.batch_valuation',$this->batch_valuation);
-		if($this->creation_date != null && !in_array($this->creation_date, array('0000-00-00 00:00:00', '0000-00-00')))
-			$criteria->compare('date(t.creation_date)',date('Y-m-d', strtotime($this->creation_date)));
-		$criteria->compare('t.creation_id',$this->creation_id,true);
-		if($this->modified_date != null && !in_array($this->modified_date, array('0000-00-00 00:00:00', '0000-00-00')))
-			$criteria->compare('date(t.modified_date)',date('Y-m-d', strtotime($this->modified_date)));
-		$criteria->compare('t.modified_id',$this->modified_id,true);
+		$criteria->compare('t.batch_name', $this->batch_name,true);
+		if($this->batch_start != null && !in_array($this->batch_start, array('0000-00-00 00:00:00','1970-01-01 00:00:00','0002-12-02 07:07:12','-0001-11-30 00:00:00')))
+			$criteria->compare('date(t.batch_start)', date('Y-m-d', strtotime($this->batch_start)));
+		if($this->batch_finish != null && !in_array($this->batch_finish, array('0000-00-00 00:00:00','1970-01-01 00:00:00','0002-12-02 07:07:12','-0001-11-30 00:00:00')))
+			$criteria->compare('date(t.batch_finish)', date('Y-m-d', strtotime($this->batch_finish)));
+		$criteria->compare('t.batch_valuation', $this->batch_valuation);
+		if($this->creation_date != null && !in_array($this->creation_date, array('0000-00-00 00:00:00','1970-01-01 00:00:00','0002-12-02 07:07:12','-0001-11-30 00:00:00')))
+			$criteria->compare('date(t.creation_date)', date('Y-m-d', strtotime($this->creation_date)));
+		$criteria->compare('t.creation_id', $this->creation_id,true);
+		if($this->modified_date != null && !in_array($this->modified_date, array('0000-00-00 00:00:00','1970-01-01 00:00:00','0002-12-02 07:07:12','-0001-11-30 00:00:00')))
+			$criteria->compare('date(t.modified_date)', date('Y-m-d', strtotime($this->modified_date)));
+		$criteria->compare('t.modified_id', $this->modified_id,true);
 		
 		// Custom Search
 		$criteria->with = array(
 			'year' => array(
-				'alias'=>'year',
-				'select'=>'years'
+				'alias' => 'year',
+				'select' => 'years'
 			),
 			'creation' => array(
-				'alias'=>'creation',
-				'select'=>'displayname'
+				'alias' => 'creation',
+				'select' => 'displayname'
 			),
 			'modified' => array(
-				'alias'=>'modified',
-				'select'=>'displayname'
+				'alias' => 'modified',
+				'select' => 'displayname'
 			),
 		);
-		$criteria->compare('year.years',strtolower($this->year_search), true);
-		$criteria->compare('creation.displayname',strtolower($this->creation_search), true);
-		$criteria->compare('modified.displayname',strtolower($this->modified_search), true);
+		$criteria->compare('year.years', strtolower($this->year_search), true);
+		$criteria->compare('creation.displayname', strtolower($this->creation_search), true);
+		$criteria->compare('modified.displayname', strtolower($this->modified_search), true);
 
-		if(!isset($_GET['PsbYearBatch_sort']) && $currentAction != 'year/edit')
+		if(!Yii::app()->getRequest()->getParam('PsbYearBatch_sort') && $currentAction != 'year/edit')
 			$criteria->order = 'batch_id DESC';
 
 		return new CActiveDataProvider($this, array(
@@ -265,59 +265,23 @@ class PsbYearBatch extends CActiveRecord
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'batch_start',
-				'value' => 'Utility::dateFormat($data->batch_start)',
+				'value' => 'Yii::app()->dateFormatter->formatDateTime(\$data->batch_start, \'medium\', false)',
 				'htmlOptions' => array(
 					'class' => 'center',
 				),
-				'filter' => Yii::app()->controller->widget('application.libraries.core.components.system.CJuiDatePicker', array(
-					'model'=>$this,
-					'attribute'=>'batch_start',
-					'language' => 'en',
-					'i18nScriptFile' => 'jquery-ui-i18n.min.js',
-					//'mode'=>'datetime',
-					'htmlOptions' => array(
-						'id' => 'batch_start_filter',
-					),
-					'options'=>array(
-						'showOn' => 'focus',
-						'dateFormat' => 'dd-mm-yy',
-						'showOtherMonths' => true,
-						'selectOtherMonths' => true,
-						'changeMonth' => true,
-						'changeYear' => true,
-						'showButtonPanel' => true,
-					),
-				), true),
+				'filter' => $this->filterDatepicker($this, 'batch_start'),
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'batch_finish',
-				'value' => 'Utility::dateFormat($data->batch_finish)',
+				'value' => 'Yii::app()->dateFormatter->formatDateTime($data->batch_finish, \'medium\', false)',
 				'htmlOptions' => array(
 					'class' => 'center',
 				),
-				'filter' => Yii::app()->controller->widget('application.libraries.core.components.system.CJuiDatePicker', array(
-					'model'=>$this,
-					'attribute'=>'batch_finish',
-					'language' => 'en',
-					'i18nScriptFile' => 'jquery-ui-i18n.min.js',
-					//'mode'=>'datetime',
-					'htmlOptions' => array(
-						'id' => 'batch_finish_filter',
-					),
-					'options'=>array(
-						'showOn' => 'focus',
-						'dateFormat' => 'dd-mm-yy',
-						'showOtherMonths' => true,
-						'selectOtherMonths' => true,
-						'changeMonth' => true,
-						'changeYear' => true,
-						'showButtonPanel' => true,
-					),
-				), true),
+				'filter' => $this->filterDatepicker($this, 'batch_finish'),
 			);
 			$this->defaultColumns[] = array(
 				'header' => 'registers',
-				'value' => 'CHtml::link($data->view->registers, Yii::app()->controller->createUrl("o/admin/manage",array("batch"=>$data->batch_id)))',
+				'value' => 'CHtml::link($data->view->registers, Yii::app()->controller->createUrl("o/admin/manage", array("batch"=>$data->batch_id)))',
 				'htmlOptions' => array(
 					'class' => 'center',
 				),
@@ -329,29 +293,11 @@ class PsbYearBatch extends CActiveRecord
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'creation_date',
-				'value' => 'Utility::dateFormat($data->creation_date)',
+				'value' => 'Yii::app()->dateFormatter->formatDateTime($data->creation_date, \'medium\', false)',
 				'htmlOptions' => array(
 					'class' => 'center',
 				),
-				'filter' => Yii::app()->controller->widget('application.libraries.core.components.system.CJuiDatePicker', array(
-					'model'=>$this,
-					'attribute'=>'creation_date',
-					'language' => 'en',
-					'i18nScriptFile' => 'jquery-ui-i18n.min.js',
-					//'mode'=>'datetime',
-					'htmlOptions' => array(
-						'id' => 'creation_date_filter',
-					),
-					'options'=>array(
-						'showOn' => 'focus',
-						'dateFormat' => 'dd-mm-yy',
-						'showOtherMonths' => true,
-						'selectOtherMonths' => true,
-						'changeMonth' => true,
-						'changeYear' => true,
-						'showButtonPanel' => true,
-					),
-				), true),
+				'filter' => $this->filterDatepicker($this, 'creation_date'),
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'batch_valuation',
@@ -359,7 +305,7 @@ class PsbYearBatch extends CActiveRecord
 				'htmlOptions' => array(
 					'class' => 'center',
 				),
-				'filter'=>array(
+				'filter' =>array(
 					1=>Yii::t('phrase', 'Ujian Nasional'),
 					0=>Yii::t('phrase', 'Raport'),
 				),
@@ -367,23 +313,20 @@ class PsbYearBatch extends CActiveRecord
 			);
 			$this->defaultColumns[] = array(
 				'header' => Yii::t('phrase', 'Recap'),
-				'value' => 'CHtml::link(Yii::t("phrase", "Recap"), Yii::app()->controller->createUrl("o/admin/recap",array("id"=>$data->batch_id,"type"=>"batch")))',
+				'value' => 'CHtml::link(Yii::t("phrase", "Recap"), Yii::app()->controller->createUrl("o/admin/recap", array("id"=>$data->batch_id,"type"=>"batch")))',
 				'htmlOptions' => array(
 					'class' => 'center',
 				),
 				'type' => 'raw',
 			);
-			if(!isset($_GET['type'])) {
+			if(!Yii::app()->getRequest()->getParam('type')) {
 				$this->defaultColumns[] = array(
 					'name' => 'publish',
-					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("publish",array("id"=>$data->batch_id)), $data->publish, 1)',
+					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("publish", array("id"=>$data->batch_id)), $data->publish, 1)',
 					'htmlOptions' => array(
 						'class' => 'center',
 					),
-					'filter'=>array(
-						1=>Yii::t('phrase', 'Yes'),
-						0=>Yii::t('phrase', 'No'),
-					),
+					'filter' => $this->filterYesNo(),
 					'type' => 'raw',
 				);
 			}
@@ -397,7 +340,7 @@ class PsbYearBatch extends CActiveRecord
 	public static function getInfo($id, $column=null)
 	{
 		if($column != null) {
-			$model = self::model()->findByPk($id,array(
+			$model = self::model()->findByPk($id, array(
 				'select' => $column,
 			));
  			if(count(explode(',', $column)) == 1)
@@ -414,7 +357,7 @@ class PsbYearBatch extends CActiveRecord
 	/**
 	 * Get Years
 	 */
-	public static function getBatch($publish=null, $type=null) 
+	public static function getBatch($publish=null, $array=true) 
 	{		
 		$criteria=new CDbCriteria;
 		if($publish != null)
@@ -422,7 +365,7 @@ class PsbYearBatch extends CActiveRecord
 		$criteria->order = 'year_id ASC, batch_start ASC';
 		$model = self::model()->findAll($criteria);
 
-		if($type == null) {
+		if($array == true) {
 			$items = array();
 			if($model != null) {
 				foreach($model as $key => $val)

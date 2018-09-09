@@ -6,7 +6,7 @@
  *
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @contact (+62)856-299-4114
- * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
+ * @copyright Copyright (c) 2016 Ommu Platform (www.ommu.co)
  * @link https://github.com/ommu/PSB
  *
  */
@@ -19,7 +19,7 @@
 ?>
 
 <div class="form" name="post-on">
-<?php $form=$this->beginWidget('application.libraries.core.components.system.OActiveForm', array(
+<?php $form=$this->beginWidget('application.libraries.yii-traits.system.OActiveForm', array(
 	'id'=>'psb-years-form',
 	'enableAjaxValidation'=>true,
 	//'htmlOptions' => array('enctype' => 'multipart/form-data')
@@ -34,7 +34,7 @@
 		<div class="clearfix">
 			<?php echo $form->labelEx($model,'years'); ?>
 			<div class="desc">
-				<?php echo $form->textField($model,'years',array('maxlength'=>9,'class'=>'span-5')); ?>
+				<?php echo $form->textField($model,'years', array('maxlength'=>9,'class'=>'span-5')); ?>
 				<?php echo $form->error($model,'years'); ?>
 				<div class="small-px silent">Contoh: 2015/2016</div>
 			</div>
@@ -45,7 +45,7 @@
 				<?php echo $form->labelEx($model,'course_input'); ?>
 				<div class="desc">
 					<?php 
-					//echo $form->textField($model,'course_input',array('maxlength'=>32,'class'=>'span-7'));					
+					//echo $form->textField($model,'course_input', array('maxlength'=>32,'class'=>'span-7'));					
 					$url = Yii::app()->controller->createUrl('o/yearcourse/add', array('type'=>'year'));
 					$year = $model->year_id;
 					$courseId = 'PsbYears_course_input';
@@ -79,7 +79,7 @@
 					<div id="course-suggest" class="suggest clearfix">
 						<?php if($course != null) {
 							foreach($course as $key => $val) {?>
-								<div><?php echo $val->course->course_name;?><a href="<?php echo Yii::app()->controller->createUrl('o/yearcourse/delete',array('id'=>$val->id,'type'=>'year'));?>" title="<?php echo Yii::t('phrase', 'Delete');?>"><?php echo Yii::t('phrase', 'Delete');?></a></div>
+								<div><?php echo $val->course->course_name;?><a href="<?php echo Yii::app()->controller->createUrl('o/yearcourse/delete', array('id'=>$val->id,'type'=>'year'));?>" title="<?php echo Yii::t('phrase', 'Delete');?>"><?php echo Yii::t('phrase', 'Delete');?></a></div>
 						<?php }
 						} ?>
 					</div>
@@ -100,7 +100,7 @@
 
 <div class="contentmenu clearfix">
 <ul class="left clearfix">
-	<li><a href="<?php echo Yii::app()->controller->createUrl('o/batch/add',array('id'=>$model->year_id,'type'=>'year'));?>" title="<?php echo Yii::t('phrase', 'Tambah Gelombang');?>"><span class="icons">C</span><?php echo Yii::t('phrase', 'Tambah Gelombang');?></a></li>
+	<li><a href="<?php echo Yii::app()->controller->createUrl('o/batch/add', array('id'=>$model->year_id,'type'=>'year'));?>" title="<?php echo Yii::t('phrase', 'Tambah Gelombang');?>"><span class="icons">C</span><?php echo Yii::t('phrase', 'Tambah Gelombang');?></a></li>
 </ul>
 </div>
 
@@ -109,9 +109,9 @@
 	<div id="ajax-message">
 	<?php
 	if(Yii::app()->user->hasFlash('error'))
-		echo Utility::flashError(Yii::app()->user->getFlash('error'));
+		echo $this->flashMessage(Yii::app()->user->getFlash('error'), 'error');
 	if(Yii::app()->user->hasFlash('success'))
-		echo Utility::flashSuccess(Yii::app()->user->getFlash('success'));
+		echo $this->flashMessage(Yii::app()->user->getFlash('success'), 'success');
 	?>
 	</div>
 	<?php //begin.Messages ?>
@@ -122,39 +122,41 @@
 			$columnData   = $columns;
 			array_push($columnData, array(
 				'header' => Yii::t('phrase', 'Options'),
-				'class'=>'CButtonColumn',
+				'class' => 'CButtonColumn',
 				'buttons' => array(
 					'view' => array(
 						'label' => 'view',
-						'imageUrl' => false,
-						'options' => array(							
+						'imageUrl' => Yii::app()->params['grid-view']['buttonImageUrl'],
+						'options' => array(
 							'class' => 'view',
 						),
-						'url' => 'Yii::app()->controller->createUrl("o/batch/view",array("id"=>$data->primaryKey, "type"=>"year"))'),
+						'url' => 'Yii::app()->controller->createUrl("o/batch/view", array(\'id\'=>$data->primaryKey, "type"=>"year"))'),
 					'update' => array(
 						'label' => 'update',
-						'imageUrl' => false,
+						'imageUrl' => Yii::app()->params['grid-view']['buttonImageUrl'],
 						'options' => array(
-							'class' => 'update'
+							'class' => 'update',
 						),
-						'url' => 'Yii::app()->controller->createUrl("o/batch/edit",array("id"=>$data->primaryKey, "type"=>"year"))'),
+						'url' => 'Yii::app()->controller->createUrl("o/batch/edit", array(\'id\'=>$data->primaryKey, "type"=>"year"))'),
 					'delete' => array(
 						'label' => 'delete',
-						'imageUrl' => false,
+						'imageUrl' => Yii::app()->params['grid-view']['buttonImageUrl'],
 						'options' => array(
-							'class' => 'delete'
+							'class' => 'delete',
 						),
-						'url' => 'Yii::app()->controller->createUrl("o/batch/delete",array("id"=>$data->primaryKey, "type"=>"year"))')
+						'url' => 'Yii::app()->controller->createUrl("o/batch/delete", array(\'id\'=>$data->primaryKey, "type"=>"year"))')
 				),
 				'template' => '{update}|{delete}',
 			));
 
-			$this->widget('application.libraries.core.components.system.OGridView', array(
+			$this->widget('application.libraries.yii-traits.system.OGridView', array(
 				'id'=>'psb-year-batch-grid',
 				'dataProvider'=>$batch->search(),
 				'filter'=>$batch,
-				'columns' => $columnData,
-				'pager' => array('header' => ''),
+				'columns'=>$columnData,
+				'template'=>Yii::app()->params['grid-view']['gridTemplate'],
+				'pager'=>array('header'=>''),
+				'afterAjaxUpdate'=>'reinstallDatePicker',
 			));
 		?>
 		<?php //end.Grid Item ?>
